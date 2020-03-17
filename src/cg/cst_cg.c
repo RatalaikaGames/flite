@@ -201,7 +201,27 @@ static float cg_state_duration(cst_item *s, cst_cg_db *cg_db)
     if (!cg_db->dur_stats[0][i])  /* unknown type name */
         x = 0;
 
-    dur = (zdur*cg_db->dur_stats[0][x]->stddev)+cg_db->dur_stats[0][x]->mean;
+		//---------------
+		//MBG HACKS
+		float r = 0;
+		static const int N=4;
+		for(int i=0;i<N;i++)
+			r += rand() / (float)RAND_MAX;
+		r /= N;
+		r *= 2;
+		r -= 1.0f;
+		static const float K = 0.75;
+		r *= K;
+		
+		//K extra standard deviations up or down from the prediction
+		//we like to get LONGER rather than shorter
+		//so if we are going DOWN, dampen it a bit
+		if(r<0) r*=0.5f;
+
+    dur = ((r+zdur)*cg_db->dur_stats[0][x]->stddev)+cg_db->dur_stats[0][x]->mean;
+
+		dur /= 1.1f;
+		//-------------------
 
     /*    dur = 1.2 * (float)exp((float)dur); */
 
